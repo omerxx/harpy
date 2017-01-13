@@ -30,7 +30,7 @@ class performance(object):
 	   	har_file.close()
 
 	def __parse(self, result):
-		parser.parse_errors(json.loads(result))
+		return parser.parse_errors(json.loads(result))
 
 	def __start_server(self):
 		#prepare and start server
@@ -74,8 +74,8 @@ class performance(object):
 		print '{}: Parsing...'.format(datetime.now())
 		urlErrors = self.__parse(result)
 		noadsUrlErrors = self.create_noads_har(url)
-
-		print 'Url: {} errors, noads: {} errors, difference: {}'.format(urlErrors, noadsUrlErrors, (urlErrors-noadsUrlErrors))
+		
+		self.comparison(urlErrors, noadsUrlErrors)
 		
 		
 		# print '{}: Saving to disk'.format(datetime.now())
@@ -94,6 +94,9 @@ class performance(object):
 		print '{}: Parsing...'.format(datetime.now())
 		
 		return self.__parse(result)
+
+	def comparison(self, urlErrors, noadsUrlErrors):
+		print 'Url: {} errors, noads: {} errors, difference: {}'.format(urlErrors, noadsUrlErrors, (urlErrors-noadsUrlErrors))
 
 	def stop_all(self):
 		#stop server and driver
