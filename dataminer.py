@@ -72,11 +72,8 @@ class performance(object):
 		self.driver.get(url)
 		result = json.dumps(self.proxy.har, ensure_ascii=False)
 		print '{}: Parsing...'.format(datetime.now())
-		urlErrors = self.__parse(result)
-		noadsUrlErrors = self.create_noads_har(url)
 		
-		self.comparison(urlErrors, noadsUrlErrors)
-		
+		return self.__parse(result)
 		
 		# print '{}: Saving to disk'.format(datetime.now())
 		# self.__store_into_file('har', result)
@@ -98,11 +95,9 @@ class performance(object):
 	def comparison(self, urlErrors, noadsUrlErrors):
 		# TODO: Improve - this should be called form main() after create_har() returns 2 vars
 		difference = (urlErrors-noadsUrlErrors)
-		print 'Url: {} errors, noads: {} errors, difference: {}'.format(urlErrors, noadsUrlErrors, difference)
 		
-		if difference > 30: # TODO: send email
-			pass
-
+		return 'Url: {} errors, noads: {} errors, difference: {}'.format(urlErrors, noadsUrlErrors, difference)
+		
 	def stop_all(self):
 		#stop server and driver
 		endTimeRecord = datetime.now()
@@ -138,9 +133,14 @@ if __name__ == '__main__':
 		path = os.getenv('BROWSERMOB_PROXY_PATH', '/browsermob-proxy-2.1.2/bin/browsermob-proxy')
 		RUN = performance(path)
 		#Currently takes only first line of file
-		url = RUN.fetch_urls(urlsFileName)[0]
-		startTime = RUN.start_all()
-		RUN.create_har(url)
+
+		url = 				RUN.fetch_urls(urlsFileName)[0]
+		startTime = 		RUN.start_all()
+		urlErrors = 		RUN.create_har(url)
+		noadsUrlErrors = 	RUN.create_noads_har(url)
+		output = 			RUN.comparison(urlErrors, noadsUrlErrors) #?
+
+
 		endTime = RUN.stop_all()
 
 		print 'Completed in {} seconds'.format((endTime-startTime).seconds)
