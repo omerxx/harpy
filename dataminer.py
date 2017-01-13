@@ -18,7 +18,7 @@ class performance(object):
 
 	def __init__(self, mob_path):
 		#initialize
-		print "%s: Go "%(datetime.now())
+		print '{}: Initializing...'.format(datetime.now())
 		self.browser_mob = mob_path
 		self.server = self.driver = self.proxy = None
 
@@ -48,6 +48,7 @@ class performance(object):
 		chrome_options = webdriver.ChromeOptions()
 		chrome_options.add_argument("--proxy-server={0}".format(url))
 		chrome_options.add_argument("--no-sandbox")
+		chrome_options.add_argument('--dns-prefetch-disable') # TODO: Commit to base project
 		self.driver = webdriver.Chrome(chromedriver,chrome_options = chrome_options)
 		
 		# Firefox ----->
@@ -62,26 +63,46 @@ class performance(object):
 		#start server and driver
 		self.__start_server()
 		self.__start_driver()
+		return datetime.now()
 
-	def create_har(self,url):
+	def create_har(self, url):
 		#start request and parse response
+		print '{}: Starting capture'.format(datetime.now())
 		self.proxy.new_har(url, options={'captureHeaders': True})
 		self.driver.get(url)
-		
 		result = json.dumps(self.proxy.har, ensure_ascii=False)
-		self.__parse(result)
-		self.__store_into_file('har', result)
-		print '{}: Finished har, starting performance'.format(datetime.now())
+		print '{}: Parsing...'.format(datetime.now())
+		urlErrors = self.__parse(result)
+		noadsUrlErrors = create_noads_har(url)
 
-		performance = json.dumps(self.driver.execute_script("return window.performance"), ensure_ascii=False)
-		self.__store_into_file('perf', performance)
+		print 'Url: {} errors, noads: {} errors, difference: {}'.format(urlErrors, noadsUrlErrors, (urlErrors-noadsUrlErrors))
+		
+		
+		# print '{}: Saving to disk'.format(datetime.now())
+		# self.__store_into_file('har', result)
+		# print '{}: Finished har, starting performance'.format(datetime.now())
+
+		# performance = json.dumps(self.driver.execute_script("return window.performance"), ensure_ascii=False)
+		# self.__store_into_file('perf', performance)
+	
+	def create_noads_har(self, url):
+		noadsUrl = '{}?spotim_rc_override_tag=none'.format(url)
+		print '{}: Starting noads har capture'.format(datetime.now())
+		self.proxy.new_har(noadsUrl, options={'captureHeaders': True})
+		self.driver.get(noadsUrl)
+		result = json.dumps(self.proxy.har, ensure_ascii=False)
+		print '{}: Parsing...'.format(datetime.now())
+		
+		return self.__parse(result)
 
 	def stop_all(self):
 		#stop server and driver
-		print "%s: Finish"%(datetime.now())
-		
+		endTimeRecord = datetime.now()
+		print '{}: Done'.format(endTimeRecord)
 		self.server.stop()
 		self.driver.quit()
+
+		return endTimeRecord
 
 	def fetch_urls(self, urlsFileName):
 		#read urls from file
@@ -110,6 +131,8 @@ if __name__ == '__main__':
 		RUN = performance(path)
 		#Currently takes only first line of file
 		url = RUN.fetch_urls(urlsFileName)[0]
-		RUN.start_all()
+		startTime = RUN.start_all()
 		RUN.create_har(url)
-		RUN.stop_all()
+		endTime = RUN.stop_all()
+
+		print 'Completed in {} seconds'.format((endTime-startTime).seconds)
