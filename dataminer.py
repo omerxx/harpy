@@ -73,7 +73,7 @@ class performance(object):
 		result = json.dumps(self.proxy.har, ensure_ascii=False)
 		print '{}: Parsing...'.format(datetime.now())
 		urlErrors = self.__parse(result)
-		noadsUrlErrors = create_noads_har(url)
+		noadsUrlErrors = self.create_noads_har(url)
 
 		print 'Url: {} errors, noads: {} errors, difference: {}'.format(urlErrors, noadsUrlErrors, (urlErrors-noadsUrlErrors))
 		
