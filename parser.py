@@ -8,6 +8,8 @@ def parse_errors(data):
 
     print 'Found {} errors'.format(counter)
 
-with open('har.json') as data_file:    
-    parse_errors(json.load(data_file))
 
+if __name__ == "__main__":
+    with open('har.json') as data_file:    
+        parse_errors(json.load(data_file))
+        

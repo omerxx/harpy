@@ -10,6 +10,7 @@ import argparse
 import urlparse
 import sys
 import os
+import parser
 
 
 class performance(object):
@@ -28,6 +29,9 @@ class performance(object):
 		har_file.write(result.encode('utf-8'))
 	   	har_file.close()
 
+	def __parse(self, result):
+		parser.parse_errors(json.loads(result))
+
 	def __start_server(self):
 		#prepare and start server
 		self.server = Server(self.browser_mob)
@@ -36,7 +40,6 @@ class performance(object):
 
 	def __start_driver(self):
 		#prepare and start driver
-		
 		#chromedriver
 		print "Browser: Chrome"
 		chromedriver = os.getenv("CHROMEDRIVER_PATH", "/chromedriver")
@@ -53,7 +56,6 @@ class performance(object):
 		# profile = webdriver.FirefoxProfile()
 		# profile.set_proxy(self.proxy.selenium_proxy())
 		# self.driver = webdriver.Firefox(firefox_profile=profile)
-		
 			
 
 	def start_all(self):
@@ -67,6 +69,7 @@ class performance(object):
 		self.driver.get(url)
 		
 		result = json.dumps(self.proxy.har, ensure_ascii=False)
+		self.__parse(result)
 		self.__store_into_file('har', result)
 		print '{}: Finished har, starting performance'.format(datetime.now())
 
