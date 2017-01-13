@@ -1,6 +1,8 @@
 FROM ubuntu:trusty
 MAINTAINER Omer Hamerman <omer@devops.co.il>
 
+COPY supervisord /
+
 # Install Chrome debian sources
 RUN apt-get update \
     && apt-get install -y wget \
@@ -10,7 +12,14 @@ RUN apt-get update \
 
 # Install pptitude and python dependencies
 RUN apt-get update \
-    && apt-get install -y xvfb python-pip unzip openjdk-7-jre google-chrome-stable \
+    && apt-get install -y \
+    xvfb \
+    python-pip \
+    unzip \
+    openjdk-7-jre \
+    google-chrome-stable \
+    supervisor \
+    vim \
     && apt-get clean \
     && pip install selenium browsermob-proxy xvfbwrapper --upgrade
 
@@ -20,21 +29,10 @@ RUN wget https://github.com/lightbody/browsermob-proxy/releases/download/browser
     && wget http://selenium-release.storage.googleapis.com/2.41/selenium-server-standalone-2.41.0.jar \
     && wget https://chromedriver.storage.googleapis.com/2.25/chromedriver_linux64.zip \
     && unzip chromedriver_linux64.zip \
-    && chmod +x chromedriver
+    && chmod +x chromedriver \
+    && mkdir -p /log 
 
-# Add the entrypoint script to the container
-COPY speedprofile.py /speedprofile.py
-COPY docker/entrypoint.sh /entrypoint.sh
-
-# Start selenium server
-RUN mkdir -p /log \
-    # && /usr/bin/java -jar selenium-server-standalone-2.41.0.jar >> /log/selenium.$(date +"%Y%d%m").log 2>&1&
-
-# Specify entrypoint and default command
-ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
-CMD ["http://www.google.com"]
-
-# CMD Should be running supervisord
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
 
 # pseudo code:
 # supervisord running chrome and python dataminer (take < speedprofile)
