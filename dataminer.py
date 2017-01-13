@@ -96,7 +96,12 @@ class performance(object):
 		return self.__parse(result)
 
 	def comparison(self, urlErrors, noadsUrlErrors):
-		print 'Url: {} errors, noads: {} errors, difference: {}'.format(urlErrors, noadsUrlErrors, (urlErrors-noadsUrlErrors))
+		# TODO: Improve - this should be called form main() after create_har() returns 2 vars
+		difference = (urlErrors-noadsUrlErrors)
+		print 'Url: {} errors, noads: {} errors, difference: {}'.format(urlErrors, noadsUrlErrors, difference)
+		
+		if difference > 30: # TODO: send email
+			pass
 
 	def stop_all(self):
 		#stop server and driver

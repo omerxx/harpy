@@ -6,6 +6,8 @@ def parse_errors(data):
         if item['response']['status'] != 200:
             counter += 1
 
+    # TODO: check if there are timestamps to sample 30 - 40 - 50 - 60 seconds from load
+
     return counter
 
 
