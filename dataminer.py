@@ -22,12 +22,9 @@ class performance(object):
         self.server = self.driver = self.proxy = None
 
     @staticmethod
-    def __store_into_file(args,title, result):
+    def __store_into_file(title, result):
         #store data collected into file
-        if 'path' in args:
-        	har_file = open(args['path']+'/'+title + '.json', 'w')
-        else:
-        	har_file = open(title + '.json', 'w')
+        har_file = open(title + '.json', 'w')
         har_file.write(str(result))
        	har_file.close()
 
@@ -37,44 +34,43 @@ class performance(object):
         self.server.start()
         self.proxy = self.server.create_proxy()
 
-    def __start_driver(self,args):
+    def __start_driver(self):
         #prepare and start driver
         
         #chromedriver
-        if args['browser'] == 'chrome':
-        	print "Browser: Chrome"
-        	print "URL: {0}".format(args['url'])
-        	chromedriver = os.getenv("CHROMEDRIVER_PATH", "/chromedriver")
-        	os.environ["webdriver.chrome.driver"] = chromedriver
-        	url = urlparse.urlparse (self.proxy.proxy).path
-        	chrome_options = webdriver.ChromeOptions()
-        	chrome_options.add_argument("--proxy-server={0}".format(url))
-        	chrome_options.add_argument("--no-sandbox")
-        	self.driver = webdriver.Chrome(chromedriver,chrome_options = chrome_options)
-        #firefox
-        if args['browser'] == 'firefox':
-            print "Browser: Firefox"
-            profile = webdriver.FirefoxProfile()
-            profile.set_proxy(self.proxy.selenium_proxy())
-            self.driver = webdriver.Firefox(firefox_profile=profile)
+        print "Browser: Chrome"
+        chromedriver = os.getenv("CHROMEDRIVER_PATH", "/chromedriver")
+        os.environ["webdriver.chrome.driver"] = chromedriver
+        url = urlparse.urlparse (self.proxy.proxy).path
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--proxy-server={0}".format(url))
+        chrome_options.add_argument("--no-sandbox")
+        self.driver = webdriver.Chrome(chromedriver,chrome_options = chrome_options)
+        
+        # Firefox ----->
+        # Optional firefox driver in the future
+        # print "Browser: Firefox"
+        # profile = webdriver.FirefoxProfile()
+        # profile.set_proxy(self.proxy.selenium_proxy())
+        # self.driver = webdriver.Firefox(firefox_profile=profile)
 		
 			
 
-    def start_all(self,args):
+    def start_all(self):
         #start server and driver
         self.__start_server()
-        self.__start_driver(args)
+        self.__start_driver()
 
-    def create_har(self,args):
+    def create_har(self,url):
         #start request and parse response
-        self.proxy.new_har(args['url'], options={'captureHeaders': True})
-        self.driver.get(args['url'])
+        self.proxy.new_har(url, options={'captureHeaders': True})
+        self.driver.get(url)
         
         result = json.dumps(self.proxy.har, ensure_ascii=False)
-        self.__store_into_file(args,'har', result)
+        self.__store_into_file('har', result)
         
         performance = json.dumps(self.driver.execute_script("return window.performance"), ensure_ascii=False)
-        self.__store_into_file(args,'perf', performance)
+        self.__store_into_file('perf', performance)
 
     def stop_all(self):
         #stop server and driver
@@ -84,17 +80,32 @@ class performance(object):
         self.server.stop()
         self.driver.quit()
 
+    def fetch_urls(self, urlsFileName):
+        #read urls from file
+        urls = []
+        with open(urlsFileName, 'w') as urlsfile:
+            for line in urlsfile:
+                urls.append(line)
+        
+        return urls
+                
 
 if __name__ == '__main__':
-	# for headless execution
+
+	urlsFileName = 'urls.txt'
+    # for headless execution
     with Xvfb() as xvfb:
-    	parser = argparse.ArgumentParser(description='Performance Testing using Browsermob-Proxy and Python')
-    	parser.add_argument('-u','--url',help='URL to test',required=True)
-    	parser.add_argument('-b','--browser',help='Select Chrome or Firefox',required=True)
-    	parser.add_argument('-p','--path',help='Select path for output files',required=False)
-    	args = vars(parser.parse_args())
-    	path = os.getenv('BROWSERMOB_PROXY_PATH', '/browsermob-proxy-2.1.2/bin/browsermob-proxy')
+
+    	# parser = argparse.ArgumentParser(description='Performance Testing using Browsermob-Proxy and Python')
+    	# parser.add_argument('-u','--url',help='URL to test',required=True)
+    	# parser.add_argument('-b','--browser',help='Select Chrome or Firefox',required=True)
+    	# parser.add_argument('-p','--path',help='Select path for output files',required=False)
+    	# args = vars(parser.parse_args())
+    	
+        path = os.getenv('BROWSERMOB_PROXY_PATH', '/browsermob-proxy-2.1.2/bin/browsermob-proxy')
     	RUN = performance(path)
-    	RUN.start_all(args)
-    	RUN.create_har(args)
+        #Currently takes only first line of file
+        url = RUN.fetch_urls()[0]
+    	RUN.start_all()
+    	RUN.create_har(url)
     	RUN.stop_all()
