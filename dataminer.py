@@ -160,8 +160,6 @@ def fetch_conf():
 if __name__ == '__main__':
 	conf = fetch_conf()
 	
-
-	urlsFileName = '/home/urls.txt'
 	# for headless execution
 	with Xvfb() as xvfb:
 		path = os.getenv('BROWSERMOB_PROXY_PATH', '/browsermob-proxy-2.1.2/bin/browsermob-proxy')
