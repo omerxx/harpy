@@ -36,9 +36,3 @@ WORKDIR /home/
 ADD parser.py mail.py dataminer.py urls.txt /home/
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
-
-# pseudo code:
-# supervisord running chrome and python dataminer (take < speedprofile)
-# new py miner exports output to s3
-#   option: save locally, analyze and continue, no s3 needed
-# parser run on output.json, maybe throw log to s3 and send mail

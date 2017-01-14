@@ -13,14 +13,20 @@ import os
 import parser
 import mail
 from time import sleep
+import logging
 
+#TODO: Logger!
+#TODO: Export performance metrics!
+#TODO: Search audio extensions in Networking data
+
+logging.basicConfig(filename='/var/log/dataminer.log',level=logging.INFO)
 
 class performance(object):
 	#create performance data
 
 	def __init__(self, mob_path):
 		#initialize
-		print '{}: Initializing...'.format(datetime.now())
+		logging.info('{}: Initializing...'.format(datetime.now())) 
 		self.browser_mob = mob_path
 		self.server = self.driver = self.proxy = None
 
@@ -47,7 +53,7 @@ class performance(object):
 	def __start_driver(self):
 		#prepare and start driver
 		#chromedriver
-		print "Browser: Chrome"
+		logging.info("Browser: Chrome") 
 		chromedriver = os.getenv("CHROMEDRIVER_PATH", "/chromedriver")
 		os.environ["webdriver.chrome.driver"] = chromedriver
 		url = urlparse.urlparse (self.proxy.proxy).path
@@ -74,11 +80,11 @@ class performance(object):
 
 	def create_har(self, url):
 		#start request and parse response
-		print '{}: Starting capture'.format(datetime.now())
+		logging.info('{}: Starting capture'.format(datetime.now())) 
 		self.proxy.new_har(url, options={'captureHeaders': True})
 		self.driver.get(url)
 		result = json.dumps(self.proxy.har, ensure_ascii=False)
-		print '{}: Parsing...'.format(datetime.now())
+		logging.info('{}: Parsing...'.format(datetime.now())) 
 		
 		return self.__parse(result)
 		
@@ -92,11 +98,11 @@ class performance(object):
 
 	def create_noads_har(self, url):
 		noadsUrl = '{}?spotim_rc_override_tag=none'.format(url)
-		print '{}: Starting noads har capture'.format(datetime.now())
+		logging.info('{}: Starting noads har capture'.format(datetime.now())) 
 		self.proxy.new_har(noadsUrl, options={'captureHeaders': True})
 		self.driver.get(noadsUrl)
 		result = json.dumps(self.proxy.har, ensure_ascii=False)
-		print '{}: Parsing...'.format(datetime.now())
+		logging.info('{}: Parsing...'.format(datetime.now())) 
 		
 		return self.__parse(result)
 
@@ -118,7 +124,7 @@ class performance(object):
 	def stop_all(self):
 		#stop server and driver
 		endTimeRecord = datetime.now()
-		print '{}: Done'.format(endTimeRecord)
+		logging.info('{}: Done'.format(endTimeRecord)) 
 		self.server.stop()
 		self.driver.quit()
 
@@ -133,14 +139,14 @@ class performance(object):
 				urls.append(line)
 		
 		if len(urls) == 0:
-			print 'Urls file empty'
+			logging.info('Urls file empty') 
 			exit(0)
 		return urls
 				
 
 if __name__ == '__main__':
 
-	urlsFileName = '/homer/urls.txt'
+	urlsFileName = '/home/urls.txt'
 	# for headless execution
 	with Xvfb() as xvfb:
 		# parser = argparse.ArgumentParser(description='Performance Testing using Browsermob-Proxy and Python')
@@ -162,7 +168,7 @@ if __name__ == '__main__':
 			mail.send_mail(output)
 			
 		endTime = RUN.stop_all()
-		print 'Completed in {} seconds'.format((endTime-startTime).seconds)
+		logging.info('Completed in {} seconds'.format((endTime-startTime).seconds)) 
 
-	print 'sleepy time'
-	sleep(180)
+	logging.info('sleepy time') 
+	sleep(1800)
