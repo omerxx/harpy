@@ -158,7 +158,7 @@ def fetch_conf():
 
 
 if __name__ == '__main__':
-	conf = fetch_conf()
+	conf = fetch_conf()['dataminer']
 	
 	# for headless execution
 	with Xvfb() as xvfb:
@@ -166,17 +166,18 @@ if __name__ == '__main__':
 		RUN = performance(path)
 
 		# Currently takes only first line of file ->
-		url = 				RUN.conf['dataminer']['url']
+		url = 				RUN.conf['url']
 		startTime = 		RUN.start_all()
 		urlErrors = 		RUN.create_har(url)
 		noadsUrlErrors = 	RUN.create_noads_har(url)
 		output = 			RUN.output_msg(urlErrors, noadsUrlErrors, url) 
 
-		if (urlErrors-noadsUrlErrors) > conf['dataminer']['error_theshold']:
+		# Threshold test
+		if (urlErrors-noadsUrlErrors) > conf['error_theshold'] and conf['email']:
 			mail.send_mail(output)
 			
 		endTime = RUN.stop_all()
 		logging.info('Completed in {} seconds'.format((endTime-startTime).seconds)) 
 
-	logging.info('Sleeping {}'.format(conf['dataminer']['cycle_time']))
-	sleep(conf['dataminer']['cycle_time'])
+	logging.info('Sleeping {}'.format(conf['cycle_time']))
+	sleep(conf['cycle_time'])
