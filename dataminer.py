@@ -15,24 +15,10 @@ import mail
 from time import sleep
 import logging
 
-#TODO: Logger!
 #TODO: Export performance metrics!
 #TODO: Search audio extensions in Networking data
 
 logging.basicConfig(filename='dataminer.log',level=logging.INFO)
-
-
-class color:
-	PURPLE = '\033[95m'
-	CYAN = '\033[96m'
-	DARKCYAN = '\033[36m'
-	BLUE = '\033[94m'
-	GREEN = '\033[92m'
-	YELLOW = '\033[93m'
-	RED = '\033[91m'
-	BOLD = '\033[1m'
-	UNDERLINE = '\033[4m'
-	END = '\033[0m'
 
 
 class performance(object):
@@ -122,20 +108,18 @@ class performance(object):
 
 
 	def output_msg(self, urlErrors, noadsUrlErrors, url):
-		
+		#TODO: Checkout email message foramt: http://stackoverflow.com/questions/882712/sending-html-email-using-python
 		difference = (urlErrors-noadsUrlErrors)
-		b = color.BOLD
-		e = color.END
-		u = color.UNDERLINE
 		return [
-				'{}Summary of analyzation:{}'.format(u, e),
+				'Summary of analysis:',
 				'Time: {}'.format(datetime.now()),
 				'URL: {}'.format(url),
 				'Found {} errors'.format(urlErrors), 
 				'No ads mode: {} errors'.format(noadsUrlErrors), 
-				'{}Difference: {}{}'.format(b, difference, e),
+				'Difference: {}'.format(difference),
+				'Spot relevant err percentage: {}%'.format(difference/urlErrors),
 				'\n',
-				'{}You are recieving this email since the difference error threshold has passed.{}'.format(b, e)
+				'You are recieving this email since the difference error threshold has passed.'
 				]
 		
 
@@ -167,15 +151,10 @@ if __name__ == '__main__':
 	urlsFileName = '/home/urls.txt'
 	# for headless execution
 	with Xvfb() as xvfb:
-		# parser = argparse.ArgumentParser(description='Performance Testing using Browsermob-Proxy and Python')
-		# parser.add_argument('-u','--url',help='URL to test',required=True)
-		# parser.add_argument('-b','--browser',help='Select Chrome or Firefox',required=True)
-		# parser.add_argument('-p','--path',help='Select path for output files',required=False)
-		# args = vars(parser.parse_args())
 		path = os.getenv('BROWSERMOB_PROXY_PATH', '/browsermob-proxy-2.1.2/bin/browsermob-proxy')
 		RUN = performance(path)
-		#Currently takes only first line of file
 
+		# Currently takes only first line of file ->
 		url = 				RUN.fetch_urls(urlsFileName)[0]
 		startTime = 		RUN.start_all()
 		urlErrors = 		RUN.create_har(url)
