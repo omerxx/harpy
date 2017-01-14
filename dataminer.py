@@ -64,7 +64,7 @@ class performance(object):
 		chrome_options = webdriver.ChromeOptions()
 		chrome_options.add_argument("--proxy-server={0}".format(url))
 		chrome_options.add_argument("--no-sandbox")
-		chrome_options.add_argument('--dns-prefetch-disable') # TODO: Commit to base project # set env LANG=en_US.UTF-8 ./chromedriver ?
+		chrome_options.add_argument('--dns-prefetch-disable') # TODO: Commit to base project # set env LANG=en_US.UTF-8 /chromedriver ?
 		self.driver = webdriver.Chrome(chromedriver,chrome_options = chrome_options)
 		
 		# Firefox ----->
@@ -172,10 +172,11 @@ if __name__ == '__main__':
 
 		# Threshold test
 		if (urlErrors-noadsUrlErrors) > conf['error_threshold'] and conf['email']:
-			mail.send_mail(output)
 			logging.info('{}: Emailing..'.format(datetime.now()))
+			mail.send_mail(output)
 		else:
-			logging.info('Not emailing (urlErrors-noadsUrlErrors is {})'.format(urlErrors-noadsUrlErrors))		
+			logging.info('Not emailing (urlErrors-noadsUrlErrors is {})'.format(urlErrors-noadsUrlErrors))	
+			mail.send_mail(output)	
 			
 		endTime = RUN.stop_all()
 		logging.info('Completed in {} seconds'.format((endTime-startTime).seconds)) 
