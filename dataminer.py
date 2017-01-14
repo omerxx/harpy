@@ -19,7 +19,21 @@ import logging
 #TODO: Export performance metrics!
 #TODO: Search audio extensions in Networking data
 
-logging.basicConfig(filename='/var/log/dataminer.log',level=logging.INFO)
+logging.basicConfig(filename='dataminer.log',level=logging.INFO)
+
+
+class color:
+	PURPLE = '\033[95m'
+	CYAN = '\033[96m'
+	DARKCYAN = '\033[36m'
+	BLUE = '\033[94m'
+	GREEN = '\033[92m'
+	YELLOW = '\033[93m'
+	RED = '\033[91m'
+	BOLD = '\033[1m'
+	UNDERLINE = '\033[4m'
+	END = '\033[0m'
+
 
 class performance(object):
 	#create performance data
@@ -108,16 +122,20 @@ class performance(object):
 
 
 	def output_msg(self, urlErrors, noadsUrlErrors, url):
+		
 		difference = (urlErrors-noadsUrlErrors)
-
+		b = color.BOLD
+		e = color.END
+		u = color.UNDERLINE
 		return [
+				'{}Summary of analyzation:{}'.format(u, e),
 				'Time: {}'.format(datetime.now()),
 				'URL: {}'.format(url),
 				'Found {} errors'.format(urlErrors), 
 				'No ads mode: {} errors'.format(noadsUrlErrors), 
-				'Difference: {}'.format(difference),
+				'{}Difference: {}{}'.format(b, difference, e),
 				'\n',
-				'You are recieving this email since the difference error threshold has passed.'
+				'{}You are recieving this email since the difference error threshold has passed.{}'.format(b, e)
 				]
 		
 
@@ -170,5 +188,5 @@ if __name__ == '__main__':
 		endTime = RUN.stop_all()
 		logging.info('Completed in {} seconds'.format((endTime-startTime).seconds)) 
 
-	logging.info('sleepy time') 
+	logging.info('sleepy time')
 	sleep(1800)
