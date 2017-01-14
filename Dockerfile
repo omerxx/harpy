@@ -30,7 +30,8 @@ RUN wget https://github.com/lightbody/browsermob-proxy/releases/download/browser
     && wget https://chromedriver.storage.googleapis.com/2.25/chromedriver_linux64.zip \
     && unzip chromedriver_linux64.zip \
     && chmod +x chromedriver \
-    && mkdir -p /log 
+    && mkdir -p /log \
+    && set env LANG=en_US.UTF-8 /chromedriver
 
 WORKDIR /home/
 ADD parser.py mail.py dataminer.py conf.yml /home/

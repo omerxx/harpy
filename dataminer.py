@@ -30,6 +30,7 @@ class performance(object):
 
 	def __init__(self, mob_path):
 		#initialize
+		logging.info('**********************')
 		logging.info('{}: Initializing...'.format(datetime.now())) 
 		self.browser_mob = mob_path
 		self.server = self.driver = self.proxy = None
@@ -57,14 +58,13 @@ class performance(object):
 	def __start_driver(self):
 		#prepare and start driver
 		#chromedriver
-		logging.info("Browser: Chrome") 
 		chromedriver = os.getenv("CHROMEDRIVER_PATH", "/chromedriver")
 		os.environ["webdriver.chrome.driver"] = chromedriver
 		url = urlparse.urlparse (self.proxy.proxy).path
 		chrome_options = webdriver.ChromeOptions()
 		chrome_options.add_argument("--proxy-server={0}".format(url))
 		chrome_options.add_argument("--no-sandbox")
-		chrome_options.add_argument('--dns-prefetch-disable') # TODO: Commit to base project
+		chrome_options.add_argument('--dns-prefetch-disable') # TODO: Commit to base project # set env LANG=en_US.UTF-8 ./chromedriver ?
 		self.driver = webdriver.Chrome(chromedriver,chrome_options = chrome_options)
 		
 		# Firefox ----->
@@ -159,22 +159,23 @@ def fetch_conf():
 
 if __name__ == '__main__':
 	conf = fetch_conf()['dataminer']
-	
 	# for headless execution
 	with Xvfb() as xvfb:
 		path = os.getenv('BROWSERMOB_PROXY_PATH', '/browsermob-proxy-2.1.2/bin/browsermob-proxy')
 		RUN = performance(path)
 
 		# Currently takes only first line of file ->
-		url = 				RUN.conf['url']
 		startTime = 		RUN.start_all()
-		urlErrors = 		RUN.create_har(url)
-		noadsUrlErrors = 	RUN.create_noads_har(url)
-		output = 			RUN.output_msg(urlErrors, noadsUrlErrors, url) 
+		urlErrors = 		RUN.create_har(conf['url'])
+		noadsUrlErrors = 	RUN.create_noads_har(conf['url'])
+		output = 			RUN.output_msg(urlErrors, noadsUrlErrors, conf['url']) 
 
 		# Threshold test
-		if (urlErrors-noadsUrlErrors) > conf['error_theshold'] and conf['email']:
+		if (urlErrors-noadsUrlErrors) > conf['error_threshold'] and conf['email']:
 			mail.send_mail(output)
+			logging.info('{}: Emailing..'.format(datetime.now()))
+		else:
+			logging.info('Not emailing (urlErrors-noadsUrlErrors is {})'.format(urlErrors-noadsUrlErrors))		
 			
 		endTime = RUN.stop_all()
 		logging.info('Completed in {} seconds'.format((endTime-startTime).seconds)) 
