@@ -11,6 +11,11 @@ def parse_errors(data):
     return counter
 
 
+def audio_detection(data):
+    # TODO: Iterate over network requests / responses search for audio files
+    pass
+
+
 if __name__ == "__main__":
     with open('har.json') as data_file:    
         parse_errors(json.load(data_file))
