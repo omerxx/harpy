@@ -32,6 +32,9 @@ RUN wget https://github.com/lightbody/browsermob-proxy/releases/download/browser
     && chmod +x chromedriver \
     && mkdir -p /log 
 
+WORKDIR /home/
+ADD parser.py mail.py dataminer.py urls.txt /home/
+
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
 
 # pseudo code:

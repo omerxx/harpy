@@ -12,6 +12,7 @@ import sys
 import os
 import parser
 import mail
+from time import sleep
 
 
 class performance(object):
@@ -139,7 +140,7 @@ class performance(object):
 
 if __name__ == '__main__':
 
-	urlsFileName = 'urls.txt'
+	urlsFileName = '/homer/urls.txt'
 	# for headless execution
 	with Xvfb() as xvfb:
 		# parser = argparse.ArgumentParser(description='Performance Testing using Browsermob-Proxy and Python')
@@ -157,9 +158,11 @@ if __name__ == '__main__':
 		noadsUrlErrors = 	RUN.create_noads_har(url)
 		output = 			RUN.output_msg(urlErrors, noadsUrlErrors, url) 
 
-		if (urlErrors-noadsUrlErrors) > 25:
+		if (urlErrors-noadsUrlErrors) > 5:
 			mail.send_mail(output)
 			
 		endTime = RUN.stop_all()
-
 		print 'Completed in {} seconds'.format((endTime-startTime).seconds)
+
+	print 'sleepy time'
+	sleep(180)
