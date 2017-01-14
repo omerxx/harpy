@@ -14,9 +14,13 @@ import parser
 import mail
 from time import sleep
 import logging
+import yaml
+
 
 #TODO: Export performance metrics!
 #TODO: Search audio extensions in Networking data
+#TODO: Create requirements.txt and point dockerfile to use
+#TODO: Create a base image
 
 logging.basicConfig(filename='dataminer.log',level=logging.INFO)
 
@@ -146,7 +150,16 @@ class performance(object):
 		return urls
 				
 
+def fetch_conf():
+	with open('conf.yml') as conf:
+		dataMap = yaml.safe_load(conf)
+	
+	return dataMap
+
+
 if __name__ == '__main__':
+	conf = fetch_conf()
+	
 
 	urlsFileName = '/home/urls.txt'
 	# for headless execution
@@ -155,17 +168,17 @@ if __name__ == '__main__':
 		RUN = performance(path)
 
 		# Currently takes only first line of file ->
-		url = 				RUN.fetch_urls(urlsFileName)[0]
+		url = 				RUN.conf['dataminer']['url']
 		startTime = 		RUN.start_all()
 		urlErrors = 		RUN.create_har(url)
 		noadsUrlErrors = 	RUN.create_noads_har(url)
 		output = 			RUN.output_msg(urlErrors, noadsUrlErrors, url) 
 
-		if (urlErrors-noadsUrlErrors) > 5:
+		if (urlErrors-noadsUrlErrors) > conf['dataminer']['error_theshold']:
 			mail.send_mail(output)
 			
 		endTime = RUN.stop_all()
 		logging.info('Completed in {} seconds'.format((endTime-startTime).seconds)) 
 
 	logging.info('sleepy time')
-	sleep(1800)
+	sleep(conf['dataminer']['cycle_time'])

@@ -21,7 +21,7 @@ RUN apt-get update \
     supervisor \
     vim \
     && apt-get clean \
-    && pip install selenium browsermob-proxy xvfbwrapper --upgrade
+    && pip install selenium browsermob-proxy xvfbwrapper PyYAML --upgrade
 
 # Install direct binary dependencies
 RUN wget https://github.com/lightbody/browsermob-proxy/releases/download/browsermob-proxy-2.1.2/browsermob-proxy-2.1.2-bin.zip \
