@@ -180,5 +180,5 @@ if __name__ == '__main__':
 		endTime = RUN.stop_all()
 		logging.info('Completed in {} seconds'.format((endTime-startTime).seconds)) 
 
-	logging.info('sleepy time')
+	logging.info('Sleeping {}'.format(conf['dataminer']['cycle_time']))
 	sleep(conf['dataminer']['cycle_time'])
