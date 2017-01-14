@@ -117,7 +117,7 @@ class performance(object):
 				'Found {} errors'.format(urlErrors), 
 				'No ads mode: {} errors'.format(noadsUrlErrors), 
 				'Difference: {}'.format(difference),
-				'Spot relevant err percentage: {}%'.format(difference/urlErrors),
+				'Spot relevant err percentage: {}%'.format((float(difference)/urlErrors)*100),
 				'\n',
 				'You are recieving this email since the difference error threshold has passed.'
 				]
